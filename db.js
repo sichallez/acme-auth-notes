@@ -23,6 +23,7 @@ User.addHook('beforeSave', async(user)=> {
   }
 });
 
+// Verify if the token matches the user, if yes, return the user profile to the browser.
 User.byToken = async(token)=> {
   try {
     const payload = await jwt.verify(token, process.env.JWT);
@@ -45,6 +46,9 @@ User.byToken = async(token)=> {
   }
 };
 
+// When a user trying to login, check if this user exists.
+// If yes, check if the password matches.
+// If the password matches, generate a web token for this specific user using JWT
 User.authenticate = async({ username, password })=> {
   const user = await User.findOne({
     where: {
@@ -59,6 +63,15 @@ User.authenticate = async({ username, password })=> {
   throw error;
 };
 
+// Define a Note model
+const Note = conn.define('note', {
+  text: STRING
+});
+
+// Two models relationships
+User.hasMany(Note);
+Note.belongsTo(User);
+
 const syncAndSeed = async()=> {
   await conn.sync({ force: true });
   const credentials = [
@@ -69,6 +82,25 @@ const syncAndSeed = async()=> {
   const [lucy, moe, larry] = await Promise.all(
     credentials.map( credential => User.create(credential))
   );
+
+  const [note1, note2, note3, note4] = await Promise.all(
+    [
+      Note.create({ text: "lucy's first note" }),
+      Note.create({ text: "moe's first note" }),
+      Note.create({ text: "larry's first note" }),
+      Note.create({ text: "lucy's second note" })
+    ]
+  );
+
+  note1.userId = lucy.id;
+  note1.save();
+  note2.userId = moe.id;
+  note2.save();
+  note3.userId = larry.id;
+  note3.save();
+  note4.userId = lucy.id;
+  note4.save();
+
   return {
     users: {
       lucy,
@@ -81,6 +113,7 @@ const syncAndSeed = async()=> {
 module.exports = {
   syncAndSeed,
   models: {
-    User
+    User,
+    Note
   }
 };

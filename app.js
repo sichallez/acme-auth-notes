@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
-const { models: { User }} = require('./db');
+const { models: { User, Note }} = require('./db');
 const path = require('path');
 
 app.use('/dist', express.static(path.join(__dirname, 'dist')));
@@ -19,17 +19,30 @@ app.post('/api/auth', async(req, res, next)=> {
 
 app.get('/api/auth', async(req, res, next)=> {
   try {
-    res.send(await User.byToken(req.headers.authorization));
+    const token = req.headers.authorization;
+    // console.log('HEADER HEADER HEADER in AUTH!!!', token);
+    // Verify if the token matches the user,
+    // If yes, send back the user profile to the browser.
+    res.send(await User.byToken(token));
   }
   catch(ex){
     next(ex);
   }
 });
 
-app.get('/api/purchases', async(req, res, next)=> {
+app.get('/api/notes', async(req, res, next)=> {
   try {
-    const user = await User.byToken(req.headers.authorization);
-    res.send('TODO Send the purchases for this user');
+    const token = req.headers.authorization;
+    // console.log('HEADER HEADER HEADER!!!', token);
+    const user = await User.byToken(token);
+    // console.log('USER HERE!!!', user.username);
+    const userNotes = await Note.findAll({
+      where: {
+        userId: user.id
+      }
+    });
+    // console.log(userNotes);
+    res.send(userNotes);
   }
   catch(ex){
     next(ex);
