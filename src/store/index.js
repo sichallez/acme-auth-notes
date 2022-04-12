@@ -5,12 +5,20 @@ import axios from 'axios';
 
 const LOAD_NOTES = 'LOAD_NOTES';
 const SET_AUTH = 'SET_AUTH';
+const DELETE_NOTE = 'DELETE_NOTE';
 
 // Reducers
 const notes = (state = [], action)=> {
   switch (action.type) {
     case LOAD_NOTES:
-      state = [...state, ...action.notes];
+      state = [...action.notes];
+      break;
+    case DELETE_NOTE:
+      // console.log(state);
+      const userNotes = [...state].filter(note => note.id !== action.note.id);
+      // console.log('NOTTTTTTTE!!', userNotes);
+      state = [...userNotes];
+      break;
     default:
       state = state;
   };
@@ -79,7 +87,21 @@ const fetchNotes = () => {
 
 const destroyNote = (note) => {
   return async(dispatch) => {
-    await axios.delete(`/api/notes/${note.id}`)
+    const token = window.localStorage.getItem('token');
+    // console.log('STORE TOKEN TOKEN TOKEN:', token);
+    if (token) {
+      // console.log('STORE TOKEN TOKEN TOKEN:', token);
+      await axios.delete(`/api/notes/${note.id}`, {
+        headers: {
+          authorization: token
+        }
+      });
+      console.log('AXIOS AXIOS !!!', note);
+      dispatch({
+        type: DELETE_NOTE,
+        note 
+      })
+    }
   }
 };
 
@@ -92,6 +114,6 @@ const store = createStore(
   applyMiddleware(thunk, logger)
 );
 
-export { attemptLogin, signIn, logout, fetchNotes };
+export { attemptLogin, signIn, logout, fetchNotes, destroyNote };
 
 export default store;

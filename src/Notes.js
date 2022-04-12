@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { destroyNote } from './store';
 
-const Notes = ({ auth, notes })=> {
+const Notes = ({ auth, notes, destroy })=> {
   return (
     <div>
       <Link to='/home'>Home</Link>
@@ -19,4 +20,12 @@ const Notes = ({ auth, notes })=> {
   );
 };
 
-export default connect(state => state)(Notes);
+const mapDispatch = (dispatch) => {
+  return {
+    destroy: (note) => {
+      dispatch(destroyNote(note));
+    }
+  }
+}
+
+export default connect(state => state, mapDispatch)(Notes);

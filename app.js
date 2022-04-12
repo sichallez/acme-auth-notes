@@ -49,6 +49,36 @@ app.get('/api/notes', async(req, res, next)=> {
   }
 });
 
+// app.get('/api/notes/:id', async(req, res, next)=> {
+//   try {
+//     const token = req.headers.authorization;
+//     console.log('GET !!TOCKEN:', token);
+//     const user = await User.byToken(token);
+//     const userNotes = await Note.findByPk(req.params.id);
+//     console.log(userNotes);
+//     res.send(userNotes);
+//   }
+//   catch(ex){
+//     next(ex);
+//   }
+// });
+
+app.delete('/api/notes/:id', async(req, res, next) => {
+  try {
+    // console.log('ID ID ID ID!!!', req.headers);
+    const token = req.headers.authorization;
+    // console.log('DELETE!!!! TOCKEN:', token);
+    const user = await User.byToken(token);
+    const userNote = await Note.findByPk(req.params.id);
+    // console.log(userNote);
+    await userNote.destroy();
+    res.sendStatus(204);
+  }
+  catch(ex){
+    next(ex);
+  }
+});
+
 app.use((err, req, res, next)=> {
   console.log(err);
   res.status(err.status || 500).send({ error: err.message });
