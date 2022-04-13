@@ -79,6 +79,21 @@ app.delete('/api/notes/:id', async(req, res, next) => {
   }
 });
 
+app.post('/api/notes', async(req, res, next) => {
+  try {
+    // console.log('POST POST POST!!!', req.body, req.headers);
+    const token = req.headers.authorization;
+    const user = await User.byToken(token);
+
+    const newNote = await Note.create({ ...req.body, userId: user.id });
+    // console.log('POST POST NEWNOTE!!!', newNote);
+    res.status(201).send(newNote);
+  }
+  catch(ex){
+    next(ex);
+  }
+});
+
 app.use((err, req, res, next)=> {
   console.log(err);
   res.status(err.status || 500).send({ error: err.message });

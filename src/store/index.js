@@ -6,6 +6,7 @@ import axios from 'axios';
 const LOAD_NOTES = 'LOAD_NOTES';
 const SET_AUTH = 'SET_AUTH';
 const DELETE_NOTE = 'DELETE_NOTE';
+const CREATE_NOTE = 'CREATE_NOTE';
 
 // Reducers
 const notes = (state = [], action)=> {
@@ -18,6 +19,9 @@ const notes = (state = [], action)=> {
       const userNotes = [...state].filter(note => note.id !== action.note.id);
       // console.log('NOTTTTTTTE!!', userNotes);
       state = [...userNotes];
+      break;
+    case CREATE_NOTE:
+      state = [...state, action.newNote];
       break;
     default:
       state = state;
@@ -96,10 +100,30 @@ const destroyNote = (note) => {
           authorization: token
         }
       });
-      console.log('AXIOS AXIOS !!!', note);
+      // console.log('AXIOS AXIOS !!!', note);
       dispatch({
         type: DELETE_NOTE,
         note 
+      })
+    }
+  }
+};
+
+const createNote = (note) => {
+  return async(dispatch) => {
+    const token = window.localStorage.getItem('token');
+    if (token) {
+      // console.log('NEWNOTE NEWNOTE NEWNOTE:', note);
+      const response = await axios.post('/api/notes', note, {
+        headers: {
+          authorization: token
+        }
+      });
+      // console.log(response.data);
+      const newNote = response.data;
+      dispatch({
+        type: CREATE_NOTE,
+        newNote
       })
     }
   }
@@ -114,6 +138,6 @@ const store = createStore(
   applyMiddleware(thunk, logger)
 );
 
-export { attemptLogin, signIn, logout, fetchNotes, destroyNote };
+export { attemptLogin, signIn, logout, fetchNotes, destroyNote, createNote };
 
 export default store;
