@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import { attemptLogin, logout, fetchNotes } from './store';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Home from './Home';
-import Notes from './Notes';
+// import Notes from './Notes';
+import Notes from './Notes.functionalComponent';
 import SignIn from './SignIn';
 
 
